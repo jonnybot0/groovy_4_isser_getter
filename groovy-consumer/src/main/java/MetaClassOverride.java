@@ -39,11 +39,11 @@ public class MetaClassOverride extends MetaClassImpl {
                 String propertyName = entry.getKey();
                 String capitalizedPropertyName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
                 MetaProperty metaProp = entry.getValue();
-                if (metaProp instanceof MetaBeanProperty) {
+                if (metaProp instanceof MetaBeanProperty && metaProp.getType().getName().equals("boolean") ) {
                     Stream<Method> methodStream = Arrays.stream(theClass.getMethods());
                     Predicate<Method> getterFinder = method -> method.getName().equals("get" + capitalizedPropertyName);
                     Optional<Method> optionalMethod = methodStream.filter(getterFinder).findFirst();
-                    if (metaProp.getType().getName().equals("boolean") && optionalMethod.isPresent()) {
+                    if (optionalMethod.isPresent()) {
                         Method getterMethod = optionalMethod.get();
                         addMetaBeanProperty(
                                 new MetaBeanProperty(propertyName,
