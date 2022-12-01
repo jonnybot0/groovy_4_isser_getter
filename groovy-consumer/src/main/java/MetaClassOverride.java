@@ -47,7 +47,7 @@ public class MetaClassOverride extends MetaClassImpl {
                         Method getterMethod = optionalMethod.get();
                         addMetaBeanProperty(
                                 new MetaBeanProperty(propertyName,
-                                        metaProp.getType(),
+                                        getterMethod.getReturnType(),
                                         CachedMethod.find(getterMethod),
                                         ((MetaBeanProperty) metaProp).getSetter())
                         );
