@@ -9,3 +9,5 @@
  */
 
 rootProject.name = 'groovy_4_isser_getter'
+
+include('groovy-consumer', 'java-lib')
