@@ -1,4 +1,5 @@
 import com.adaptavist.ClassWithConflictingProp
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError
 import spock.lang.Specification;
 
 class AccessorRegressionSpec extends Specification {
@@ -12,7 +13,16 @@ class AccessorRegressionSpec extends Specification {
         staticallyCompiledClass.newInstance().useAmbiguousMethods()
 
         then:
-        notThrown(Exception)
+        thrown(PowerAssertionError)
+
+        when:
+        staticallyCompiledClass = groovyClassLoader.parseClass(
+            this.class.classLoader.getResource('StaticallyCompiledConsumerClassWithExtension.groovy').text
+        )
+        staticallyCompiledClass.newInstance().useAmbiguousMethods()
+
+        then:
+        noExceptionThrown()
     }
 
     def "getter is preferred for accessors when there is an isser and non-boolean getter"() {
