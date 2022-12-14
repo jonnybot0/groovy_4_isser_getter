@@ -1,4 +1,8 @@
 import com.adaptavist.ClassWithConflictingProp
+import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError
 import spock.lang.Specification;
 
@@ -6,7 +10,12 @@ class AccessorRegressionSpec extends Specification {
 
     def "use a static class"() {
         when:
-        def groovyClassLoader = new GroovyClassLoader()
+        def compilerConfiguration = new CompilerConfiguration()
+        compilerConfiguration.addCompilationCustomizers(new ASTTransformationCustomizer(
+            CompileStatic,
+            extensions: ['FunkyPrecompiledTypeCheckingExtension']
+        ))
+        def groovyClassLoader = new GroovyClassLoader(this.class.classLoader, compilerConfiguration)
         def staticallyCompiledClass = groovyClassLoader.parseClass(
             this.class.classLoader.getResource('StaticallyCompiledConsumerClass.groovy').text
         )
