@@ -10,13 +10,16 @@ class FunkyPrecompiledTypeCheckingExtension extends GroovyTypeCheckingExtensionS
             println "Class visisted ${classNode}"
             classNode.properties.findAll { PropertyNode propertyNode ->
                 if (propertyNode.getterName.startsWith("is")) {
+                    println "Property node's getter starts with is"
                     def propertyName = propertyNode.getterName - "is"
                     def lowerPropertyName = propertyName[0].toLowerCase() + propertyName[1..-1]
                     def getterName = "get" + propertyName
                     if (classNode.hasDeclaredMethod(getterName, new Parameter[]{})) {
+                        println "Class has getter method in addition to the used is method"
                         def getter = classNode.getDeclaredMethod(getterName, new Parameter[]{})
                         propertyNode.getterBlock = getter.code
                         propertyNode.getterName = getter.name
+                        classNode.addProperty(propertyNode)
                     }
                 }
             }

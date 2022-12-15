@@ -1,10 +1,9 @@
 import com.adaptavist.ClassWithConflictingProp
 import groovy.transform.CompileStatic
-import groovy.transform.TypeChecked
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError
-import spock.lang.Specification;
+import spock.lang.Specification
 
 class AccessorRegressionSpec extends Specification {
 
