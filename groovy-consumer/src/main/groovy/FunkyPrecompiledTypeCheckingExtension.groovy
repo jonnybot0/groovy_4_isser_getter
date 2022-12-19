@@ -6,7 +6,11 @@ import org.codehaus.groovy.ast.PropertyNode
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.ExpressionTransformer
 import org.codehaus.groovy.ast.expr.PropertyExpression
+import org.codehaus.groovy.transform.sc.transformers.StaticCompilationTransformer
 import org.codehaus.groovy.transform.stc.GroovyTypeCheckingExtensionSupport
+import org.codehaus.groovy.transform.stc.StaticTypeCheckingVisitor
+import org.codehaus.groovy.transform.stc.StaticTypesMarker
+import org.codehaus.groovy.transform.stc.TypeCheckingContext
 
 class FunkyPrecompiledTypeCheckingExtension extends GroovyTypeCheckingExtensionSupport.TypeCheckingDSL {
     @Override
@@ -46,6 +50,8 @@ class FunkyPrecompiledTypeCheckingExtension extends GroovyTypeCheckingExtensionS
 */
         onMethodSelection { expression, node ->
             println "Method selection: ${expression} ${node}"
+            def context = context as TypeCheckingContext
+            def visitor = typeCheckingVisitor as StaticTypeCheckingVisitor
             if (expression instanceof PropertyExpression) {
                 if (node instanceof MethodNode) {
                     def methodName = node.name
@@ -56,8 +62,16 @@ class FunkyPrecompiledTypeCheckingExtension extends GroovyTypeCheckingExtensionS
                     if (node.returnType.name == "boolean" && methodName.startsWith("is") && hasGetter) {
                         def getter = node.getDeclaringClass().getDeclaredMethod(getterName, new Parameter[]{})
                         println "Class has a getter and an isser for this property ($lowerPropertyName). Time to transform it!"
+                        expression.putNodeMetaData(StaticTypesMarker.DIRECT_METHOD_CALL_TARGET, getter)
+                        expression.putNodeMetaData(StaticTypesMarker.INFERRED_TYPE, getter.returnType)
+                        def transformer = new StaticCompilationTransformer(context.source, typeCheckingVisitor)
+                        transformer.transform(expression)
+/*
                         def declaringClass = node.declaringClass
                         def extantProperty = declaringClass.hasProperty(lowerPropertyName) ? declaringClass.getProperty(lowerPropertyName) : null
+                        println "Context: $context"
+                        println "Type Checking Visitor: $typeCheckingVisitor"
+                        println "Generated methods: $generatedMethods"
                         println "Declaring class props before: ${declaringClass.getProperties()}"
                         declaringClass.addProperty(
                             new PropertyNode(
@@ -70,6 +84,7 @@ class FunkyPrecompiledTypeCheckingExtension extends GroovyTypeCheckingExtensionS
                             )
                         )
                         println "Declaring class props after: ${declaringClass.getProperties()}"
+*/
                     }
                 }
             }
